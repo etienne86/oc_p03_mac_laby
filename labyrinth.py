@@ -2,24 +2,27 @@
 # coding: utf-8
 
 """This module contains the 'Labyrinth' class.
-This includes game logics.
 
 The game grid is represented with a pandas.Dataframe object,
 containing integers:
-'0' are paths
+'0' are paths, where we can possibly see the player or the tools
 '1' are walls
-'2' (only once in the pandas.Dataframe object) is the player (Mac Gyver)
-'3' (only once in the pandas.Dataframe object) is the guard
-'4' (only once in the pandas.Dataframe object) is the tube (4 characters)
-'5' (only once in the pandas.Dataframe object) is the ether (5 characters)
-'6' (only once in the pandas.Dataframe object) is the needle (6 characters)
+'2' is the labyrinth exit, i.e. the guard location (unique occurrence)
+'3' is the start point, i.e. the initial player location (unique occurrence),
+and has the same role as a path during the game
+
+We assume that each labyrinth side (top & bottom rows, left & right columns)
+is composed with walls, except a unique location which is the labyrinth exit.
 """
 
 import math
 import random
 
-import numpy as np
+#import numpy as np
 import pandas as pd
+
+from player import Player
+from tool import Tool
 
 
 class Labyrinth:
@@ -29,44 +32,18 @@ class Labyrinth:
         """This special method is the class constructor."""
         self.height = height # type is int
         self.width = width # type is int
+        self.player = Player(-1,-1) # initialization out of the labyrinth
+        # 'initialize_grid_from_file' method assignes the real player location
         # 'self.grid' type is pandas.Dataframe
         self.grid = self.initialize_grid_from_file(csv_file)
-        self.player_is_alive = True
-        self.ether_is_found = False
-        self.needle_is_found = False
-        self.tube_is_found = False
-        self.player_wins = False
+        # 'self.tools' type is list containing items of <class 'Tool'>
+        self.tools = self.position_tools_randomly()
 
-    def analyze_game_status(self):
-        """This method determins if the game continues
-        (nothing special happens), or if the player wins or loses."""
-        (x2,y2) = self.determin_item_location(2) # player location
-        (x3,y3) = self.determin_item_location(3) # guard location
-        if (x2 == x3 and math.fabs(y2 - y3) == 1)\
-        or (y2 == y3 and math.fabs(x2 - x3) == 1):
-        # if player and guard are neighbours
-            if self.ether_is_found\
-            and self.needle_is_found\
-            and self.tube_is_found:
-            # if all three objects are found
-                self.player_wins = True
-            else:
-                self.player_is_alive = False
-
-    def count_value(self, value):
-        """This methods returns the number of 'value' occurences
-        in the labyrinth."""
-        value_counter = 0
-        for row in self.grid.values:
-            for val in row:
-                if val == value:
-                    value_counter += 1
-        return value_counter
-
-    def determin_item_location(self, value):
-        """This method returns a tuple (x,y) with the location of an item.
-        Item can be '2' (player), '3' (guard), '4'/'5'/'6' (object to find)."""
-        x,y = 0
+    @property
+    def x_exit(self):
+        """This property returns the exit location on X axis."""
+        x = 0
+        y = 0
         for row in self.grid.values:
             for val in row:
                 if val == value:
@@ -77,126 +54,129 @@ class Labyrinth:
                 break
             else:
                 x += 1
-        return (x,y)
+        return x
 
-    def find_ether(self):
-        """This method modifies the attribute 'ether_is_found'
-        when the ether is found."""
-        if not self.ether_is_found:
-            for column in self.grid:
-                try:
-                    i = column.index(5) # '5' is at most once in the labyrinth
-                except ValueError: # for each column except the column with '5'
-                    pass
+    @property
+    def y_exit(self):
+        """This property returns the exit location on Y axis."""
+        x = 0
+        y = 0
+        for row in self.grid.values:
+            for val in row:
+                if val == value:
+                    break
                 else:
-                    self.ether_is_found = True
+                    y += 1
+            if val == value:
+                break
+            else:
+                x += 1
+        return y
 
-    def find_needle(self):
-        """This method modifies the attribute 'needle_is_found'
-        when the needle is found."""
-        if not self.ether_is_found:
-            for column in self.grid:
-                try:
-                    i = column.index(6) # '6' is only once in the labyrinth
-                except ValueError: # for each column except the column with '6'
-                    pass
-                else:
-                    self.ether_is_found = True
+    def analyze_game_status(self):
+        """This method determins if the game continues
+        (nothing special happens), or if the player wins or loses."""
+        x2 = self.x_exit
+        y2 = self.y_exit
+        x3 = self.player.x_pos
+        y3 = self.player.y_pos
+        all_tools_found = True
+        for i in range(len(tools)):
+            all_tools_found = all_tools_found and self.tools[i].found 
+        # if player and guard are neighbours on the grid
+        if (x2 == x3 and math.fabs(y2 - y3) == 1)\
+        or (math.fabs(x2 - x3) == 1 and y2 == y3):
+            if all_tools_found:
+                self.player_wins = True
+            else:
+                self.player_is_alive = False
 
-    def find_tube(self):
-        """This method modifies the attribute 'tube_is_found'
-        when the tube is found."""
-        if not self.ether_is_found:
-            for column in self.grid:
-                try:
-                    i = column.index(4) # '4' is only once in the labyrinth
-                except ValueError: # for each column except the column with '4'
-                    pass
-                else:
-                    self.ether_is_found = True
+    def authorize_player_movements():
+        """This method updates the player authorized movements."""
+        x = self.player.x_pos
+        y = self.player.y_pos
+        up = (x,y-1)
+        down = (x,y+1)
+        left = (x-1,y)
+        right = (x+1,y)
+        # Since the labyrinth sides are composed with walls and the exit,
+        # 'up', 'down', 'left' and 'right' are well inside the grid.
+        # If the neighbour location is a wall ('1'), the movement is forbidden.
+        # Otherwise, the neighbour location is necessarily a path ('0' or '3'),
+        # thus the movement is authorized.
+        # The neighbour location cannot be the exit ('2') during the game.
+        if self.grid.iloc[up] == 1:
+            self.player.authorized_movements["up"] = False
+        elif self.grid.iloc[up] in [0,3]:
+            self.player.authorized_movements["up"] = True
+        if self.grid.iloc[down] == 1:
+            self.player.authorized_movements["down"] = False
+        elif self.grid.iloc[down] in [0,3]:
+            self.player.authorized_movements["down"] = True
+        if self.grid.iloc[left] == 1:
+            self.player.authorized_movements["left"] = False
+        elif self.grid.iloc[left] in [0,3]:
+            self.player.authorized_movements["left"] = True
+        if self.grid.iloc[right] == 1:
+            self.player.authorized_movements["right"] = False
+        elif self.grid.iloc[right] in [0,3]:
+            self.player.authorized_movements["right"] = True
+
+    def count_paths(self):
+        """This methods returns the number of '0' (paths) in the labyrinth."""
+        counter = 0
+        for row in self.grid.values: # iteration on row
+            for val in row: # iteration on items
+                if val == 0:
+                    counter += 1
+        return counter
+
+    def find_tool():
+        """This method switches to 'True' the 'found' tool attribute,
+        if the tool is found by the player."""
+        for tool in self.tools:
+            # if the player and the tool are at the same place
+            if self.player.x_pos == tool.x_pos\
+            and self.player.y_pos == tool.y_pos:
+                tool.found = True
 
     def initialize_grid_from_file(self, csv_file):
         """This method creates the labyrinth grid from an external CSV file."""
-        #grid_nd = np.ndarray(shape=(self.width, self.height), dtype=int)
-        #grid_df = pd.DataFrame(grid_nd)
+        # we create a pandas.DataFrame object
         grid_df = pd.read_csv(csv_file, sep=";") # grid initialization from CSV
         return grid_df
 
-    def move_down(self):
-        """This method moves the player one step down, if authorized."""
-        for col in self.grid: # iteration over columns
-            my_column = self.grid[col]
-            try:
-                i = my_column.index(2) # '2' is only once in the labyrinth
-            except ValueError: # for each column except the column containing '2'
-                pass
-            else:
-                if i+1 in [4,5,6]: # if the player finds an object
-                    my_column[i+1] = 0 # this object is picked up
-                if i+1 == 0:
-                    # permutation of two values in the list
-                    my_column[i+1], my_column[i] = my_column[i], my_column[i+1]
+    def initialize_player_location(self):
+        """This method assignes the real player location in the labyrinth."""
+        for row in self.grid.values: # iteration on rows
+            for i, val in enumerate(row): # iteration on items
+                if val == 3: # if we are on the player location
+                    self.player.x_pos = i
+                    self.player.y_pos = row
 
-    def move_left(self):
-        """This method moves the player one step left, if authorized."""
-        for row in self.grid.iterrows(): # iteration over rows
-            my_row = row[1]
-            try:
-                i = my_row.index(2) # '2' is only once in the labyrinth
-            except ValueError: # for each row except the row containing '2'
-                pass
-            else:
-                if i-1 in [4,5,6]: # if the player finds an object
-                    my_row[i-1] = 0 # this object disappears
-                    # permutation of two values in the list
-                    my_row[i-1], my_row[i] = my_row[i], my_row[i-1]
-
-    def move_right(self):
-        """This method moves the player one step right, if authorized."""
-        for row in self.grid.iterrows(): # iteration over rows
-            my_row = row[1]
-            try:
-                i = my_row.index(2) # '2' is only once in the labyrinth
-            except ValueError: # for each row except the row containing '2'
-                pass
-            else:
-                if i+1 in [4,5,6]: # if the player finds an object
-                    my_row[i+1] = 0 # this object disappears
-                    # permutation of two values in the list
-                    my_row[i+1], my_row[i] = my_row[i], my_row[i+1]
-
-    def move_up(self):
-        """This method moves the player one step up, if authorized."""
-        for column in self.grid: # iteration over columns
-            my_column = self.grid[col]
-            try:
-                i = my_column.index(2) # '2' is only once in the labyrinth
-            except ValueError: # for each column except the column containing '2'
-                pass
-            else:
-                if i-1 in [4,5,6]: # if the player finds an object
-                    my_column[i-1] = 0 # this object disappears
-                    # permutation of two values in the list
-                    my_column[i-1], my_column[i] = my_column[i], my_column[i-1]
-
-    def position_objects(self):
-        """This method randomly positions the three objets in the labyrinth."""
-        paths_counter = self.count_value(0)
-        random_list = random.sample(range(paths_counter), 3)
-        for obj in [4,5,6]: # iteration on objects to find in the labyrinth
-            random_counter = 0
-            random_rank = random_list[obj - 4]
-            # first lap in loop 'obj in [4,5,6]': random_list[0]      
-            # second lap in loop 'obj in [4,5,6]': random_list[1]
-            # third/last lap in loop 'obj in [4,5,6]': random_list[2]
-            for row in self.grid.values:
-                for val in row:
-                    if val == 0:
-                        if random_counter == random_rank:
-                            val = obj # we position the object here
-                            break
+    def position_tools_randomly(self):
+        """This method randomly positions the tools in the labyrinth."""
+        tools = []
+        tools_names = Tool.TOOLS_NAMES # we import our tools names
+        tools_qty = len(tools_names)
+        paths_counter = self.count_paths()
+        # random selection of samples among the paths locations
+        random_list = random.sample(range(paths_counter), tools_qty)
+        for k, tool_name in enumerate(tools_names): # iteration on tools
+            k_random_counter = 0
+            k_random_rank = random_list[k]
+            for row in self.grid.values: # iteration on rows
+                for i, val in enumerate(row): # iteration on items
+                    if val == 0: # if we are on a path
+                        # if we are on the randomly selected location
+                        if k_random_counter == k_random_rank:
+                            # we position the tool here
+                            tool = Tool(tools_names[k], i, row)
+                            # we add the tool in the list
+                            tools.append(tool) 
                         else:
-                            random_counter += 1
+                            k_random_counter += 1
+        return tools
 
     def save_grid_to_file(self, csv_file):
         """This method saves the labyrinth grid to an external CSV file.

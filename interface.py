@@ -20,7 +20,7 @@ class Interface:
         self.back = back
         self.title = title # type is str
         self.sub_elements = {"pictures": []}
-        self.logic_light = "yellow" # possible values: "red", "yellow", "green"
+        self.logic_light = "green" # possible values: "red", "yellow", "green"
 
     def position_labyrinth(self, x, y, labyrinth):
         """This method positions the labyrinth on the interface."""
