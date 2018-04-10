@@ -44,16 +44,16 @@ class Labyrinth:
         """This property returns the exit location on X axis."""
         x = 0
         y = 0
-        for row in self.grid.values:
-            for val in row:
+        for row in self.grid.values: # iteration over rows
+            for val in row: # iteration over columns
                 if val == 2:
                     break
                 else:
-                    y += 1
+                    x += 1
             if val == 2:
                 break
             else:
-                x += 1
+                y += 1
         return x
 
     @property
@@ -61,16 +61,16 @@ class Labyrinth:
         """This property returns the exit location on Y axis."""
         x = 0
         y = 0
-        for row in self.grid.values:
-            for val in row:
+        for row in self.grid.values: # iteration over rows
+            for val in row: # iteration over columns
                 if val == 2:
                     break
                 else:
-                    y += 1
+                    x += 1
             if val == 2:
                 break
             else:
-                x += 1
+                y += 1
         return y
 
     def analyze_game_status(self):
@@ -82,15 +82,14 @@ class Labyrinth:
         y3 = self.player.y_pos
         all_tools_found = True
         # we check if all tools are found by the player
-        for i in range(len(tools)):
+        for i in range(len(self.tools)):
             all_tools_found = all_tools_found and self.tools[i].found 
-        # if player and guard are neighbours on the grid
-        if (x2 == x3 and math.fabs(y2 - y3) == 1)\
-        or (math.fabs(x2 - x3) == 1 and y2 == y3):
+        # if the player and the guard are neighbours on the grid
+        if ((x2 == x3) and (math.fabs(y2 - y3) == 1)) or ((math.fabs(x2 - x3) == 1) and (y2 == y3)):
             if all_tools_found:
-                self.player_wins = True
+                self.player.wins = True
             else:
-                self.player_is_alive = False
+                self.player.is_alive = False
 
     def authorize_player_movements(self):
         """This method updates the player authorized movements."""
@@ -129,8 +128,8 @@ class Labyrinth:
     def count_paths(self):
         """This methods returns the number of '0' (paths) in the labyrinth."""
         counter = 0
-        for row in self.grid.values: # iteration on row
-            for val in row: # iteration on items
+        for row in self.grid.values: # iteration over rows
+            for val in row: # iteration over columns
                 if val == 0:
                     counter += 1
         return counter
@@ -152,8 +151,8 @@ class Labyrinth:
 
     def initialize_player_location(self):
         """This method assignes the real player location in the labyrinth."""
-        for j, row in enumerate(self.grid.values): # iteration on rows
-            for i, val in enumerate(row): # iteration on items
+        for j, row in enumerate(self.grid.values): # iteration over rows
+            for i, val in enumerate(row): # iteration over columns
                 if val == 3: # if we are on the player location
                     self.player.x_pos = i
                     self.player.y_pos = j
@@ -169,8 +168,8 @@ class Labyrinth:
         for k, tool_name in enumerate(tools_names): # iteration on tools
             k_random_counter = 0
             k_random_rank = random_list[k]
-            for j, row in enumerate(self.grid.values): # iteration on rows
-                for i, val in enumerate(row): # iteration on items
+            for j, row in enumerate(self.grid.values): # iteration over rows
+                for i, val in enumerate(row): # iteration over columns
                     if val == 0: # if we are on a path
                         # if we are on the randomly selected location
                         if k_random_counter == k_random_rank:

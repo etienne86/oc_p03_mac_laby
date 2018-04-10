@@ -3,6 +3,7 @@
 
 """This file has to be executed with Python to launch a labyrinth game."""
 
+import math
 import os
 
 import pygame
@@ -63,7 +64,7 @@ def main():
     game_laby.initialize_player_location()
 
     # we display our dashboard
-    game_dashboard.display_dashboard(window, game_tools)
+    game_interface.display_dashboard(window, game_tools)
 
     ## TO DO: sub-function
     x0 = Interface.LABY_ORIGIN[0]
@@ -72,7 +73,7 @@ def main():
     y_player = y0 + (game_player.y_pos * Interface.SPRITE_SIZE)
 
     cont = True
-    while cont and game_player.is_alive:
+    while cont and game_player.is_alive and not game_player.wins:
         for event in pygame.event.get():
             # we update the authorized movements for the player
             game_laby.authorize_player_movements()
@@ -105,14 +106,34 @@ def main():
                         window.blit(sand_path, (x_player, y_player))
                         # we update the player location in the labyrinth
                         game_player.move("right")
+                # we check if the player find a tool
+                game_laby.find_tool()
+                # we check if the player wins or loses
+                game_laby.analyze_game_status()
                 # we update the player location on the screen
                 x_player = x0 + (game_player.x_pos * Interface.SPRITE_SIZE)
                 y_player = y0 + (game_player.y_pos * Interface.SPRITE_SIZE)
                 window.blit(mac_gyver, (x_player, y_player))
                 # we update the dashboard
-                game_dashboard.display_dashboard(window, game_tools)
+                game_interface.display_dashboard(window, game_tools)
                 # screen refresh
                 pygame.display.flip()
+    
+    if game_player.wins or not game_player.is_alive:
+        if game_player.wins:
+            game_interface.dashboard.logic_light = "green"
+        elif not game_player.is_alive:
+            game_interface.dashboard.logic_light = "red"
+        game_interface.display_dashboard(window, game_tools)
+        pygame.display.flip()
+        cont = True
+        while cont:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    cont = False
+                if event.type == KEYDOWN:
+                    if event.key == K_ESCAPE:
+                        cont = False
 
     pygame.quit()
 

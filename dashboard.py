@@ -23,17 +23,17 @@ class Dashboard:
         self.sprite_size = sprite_size # type is int
         self.logic_light = "yellow" # possible values: "red", "yellow", "green"
 
-    def display_dashboard(self, screen, tools):
+    def display(self, screen, tools=[]):
         """This method displays the dashboard.
         We assume that pygame has been initialized."""
         if self.mode == "game":
-            self._display_game_dashboard(screen, tools)
+            self._game_display(screen, tools)
         elif self.mode == "edit":
-            self._display_edit_dashboard(screen)
+            self._edit_display(screen)
         else:
             raise ValueError("This mode is not permitted!")
 
-    def _display_game_dashboard(self, screen, tools):
+    def _game_display(self, screen, tools):
         """This method displays the dashboard in game mode.
         We assume that pygame has been initialized."""
         x0 = self.origin[0]
@@ -41,23 +41,23 @@ class Dashboard:
         side = self.sprite_size
         # Our fonts
         black = (0, 0, 0)
-        font_arial_12_bold = pygame.font.SysFont('Arial', 12, bold=True)
-        font_arial_10 = pygame.font.SysFont('Arial', 10)
+        font_arial_16_bold = pygame.font.SysFont('Arial', 16, bold=True)
+        font_arial_14 = pygame.font.SysFont('Arial', 14)
         # 1. First section
         # 1.1. Title
         title1_str = 'Tools found until now:'
-        title1 = font_arial_12_bold.render(title1_str, False, black)
+        title1 = font_arial_16_bold.render(title1_str, False, black)
         screen.blit(title1,(x0,y0))
         # 1.2. Items
         for i, tool in enumerate(tools):
             x_tool = x0
-            y_tool = y0 + 2 * i * side
+            y_tool = y0 + ((2*i + (1 - 0.5*i)) * side)
             # We draw an "empty" square
             self._display_transparent_square(screen, x_tool, y_tool)
             # We display the tool name
             x_tool_name = x_tool + side + 10
             y_tool_name = y_tool + 10
-            tool_text = font_arial_10.render(tool.name, False, black)
+            tool_text = font_arial_14.render(tool.name, False, black)
             screen.blit(tool_text, (x_tool_name, y_tool_name))
             # We fill the square with the sprite if the tool is found
             if tool.found:
@@ -67,13 +67,13 @@ class Dashboard:
                 screen.blit(sprite, (x_tool, y_tool))
         # 2. Second section
         # 2.1. Title
-        title2 = font_arial_12_bold.render('Status:', False, black)
-        screen.blit(title2,(x0, y0 + 8 * side))
+        title2 = font_arial_16_bold.render('Status:', False, black)
+        screen.blit(title2,(x0, y0 + 7 * side))
         # 2.2. Logic light (red/yellow/green)
         x_light = x0
-        y_red = y0 + 10 * side
-        y_yellow = y0 + 12 * side
-        y_green = y0 + 14 * side
+        y_red = y0 + 8 * side
+        y_yellow = y0 + 9.5 * side
+        y_green = y0 + 11 * side
         if self.logic_light == "red":
             y_light = y_red
             color = (255, 0, 0)
@@ -85,24 +85,35 @@ class Dashboard:
             color = (0, 255, 0)
         else:
             raise ValueError(self.logic_light)
+        # Three lines to draw the black light
+        pygame.draw.rect(screen, black, (x_light, y_red, side, side))
+        pygame.draw.rect(screen, black, (x_light, y_yellow, side, side))
+        pygame.draw.rect(screen, black, (x_light, y_green, side, side))
+        # Draw the logic light
         pygame.draw.rect(screen, color, (x_light, y_light, side, side))
         self._display_transparent_square(screen, x_light, y_red)
         self._display_transparent_square(screen, x_light, y_yellow)
         self._display_transparent_square(screen, x_light, y_green)
         # 2.3. Logic light description
-        red_msg = "You lose... your life, sorry!"
-        yellow_msg = "You are still alive, good luck!"
-        green_msg = "You win, congratulations!"
-        red_text = font_arial_10.render(red_msg, False, black)
-        yellow_text = font_arial_10.render(yellow_msg, False, black)
-        green_text = font_arial_10.render(green_msg, False, black)
+        red_msg = "=> You lose... your life, sorry!"
+        yellow_msg = "=> You are still alive, good luck!"
+        green_msg = "=> You win, congratulations!"
+        red_text = font_arial_14.render(red_msg, False, black)
+        yellow_text = font_arial_14.render(yellow_msg, False, black)
+        green_text = font_arial_14.render(green_msg, False, black)
         screen.blit(red_text, (x_light + side + 10, y_red + 10))
         screen.blit(yellow_text, (x_light + side + 10, y_yellow + 10))
         screen.blit(green_text, (x_light + side + 10, y_green + 10))
+        # 3. Third section
+        bottom_str = "Press 'Esc' if you want to quit"
+        bottom = font_arial_16_bold.render(bottom_str, False, black)
+        x_bottom = x0
+        y_bottom = y0 + 14 * side
+        screen.blit(bottom, (x_bottom, y_bottom))
         # screen refresh
         pygame.display.flip()
 
-    def _display_edit_dashboard(self, screen):
+    def _edit_display(self, screen):
         """This method displays the dashboard in edit mode.
         We assume that pygame has been initialized."""
         x0 = self.origin[0]
@@ -110,17 +121,17 @@ class Dashboard:
         side = self.sprite_size
         # Our fonts
         black = (0, 0, 0)
-        font_arial_12_bold = pygame.font.SysFont('Arial', 12, bold=True)
-        font_arial_10 = pygame.font.SysFont('Arial', 10)
+        font_arial_16_bold = pygame.font.SysFont('Arial', 16, bold=True)
+        font_arial_14 = pygame.font.SysFont('Arial', 14)
         # 1. First section
         # 1.1. Title
         title1_str = 'Left click to select, right click to release:'
-        title1 = font_arial_12_bold.render(title1_str, False, black)
+        title1 = font_arial_16_bold.render(title1_str, False, black)
         screen.blit(title1, (x0, y0))
         # 1.2. Items
         for i in range(3):
             x_sprite = x0
-            y_sprite = y0 + (2 * (i+1) * side)
+            y_sprite = y0 + ((2*i + (1 - 0.5*i)) * side)
             # We fill the square with the sprite if the tool is found
             if i == 0:
                 sprite = pygame.image.load("sprites\\wall.png").convert()
@@ -137,17 +148,17 @@ class Dashboard:
             # We display the sprite name
             x_sprite_name = x_sprite + side + 10
             y_sprite_name = y_sprite + 10
-            sprite_text = font_arial_10.render(sprite_name, False, black)
+            sprite_text = font_arial_14.render(sprite_name, False, black)
             screen.blit(sprite_text, (x_sprite_name, y_sprite_name))
         # 2. Second section
         # 2.1. Title
-        title2 = font_arial_12_bold.render('Status:', False, black)
-        screen.blit(title1,(x0, y0 + 8 * side))
+        title2 = font_arial_16_bold.render('Status:', False, black)
+        screen.blit(title1,(x0, y0 + 7 * side))
         # 2.2. Logic light (red/yellow/green)
         x_light = x0
-        y_red = y0 + 10 * side
-        y_yellow = y0 + 12 * side
-        y_green = y0 + 14 * side
+        y_red = y0 + 8 * side
+        y_yellow = y0 + 9.5 * side
+        y_green = y0 + 11 * side
         if self.logic_light == "red":
             y_light = y_red
             color = (255, 0, 0)
@@ -159,20 +170,31 @@ class Dashboard:
             color = (0, 255, 0)
         else:
             raise ValueError(self.logic_light)
+        # Three lines to draw the black light
+        pygame.draw.rect(screen, black, (x_light, y_red, side, side))
+        pygame.draw.rect(screen, black, (x_light, y_yellow, side, side))
+        pygame.draw.rect(screen, black, (x_light, y_green, side, side))
+        # Draw the logic light
         pygame.draw.rect(screen, color, (x_light, y_light, side, side))
         self._display_transparent_square(screen, x_light, y_red)
         self._display_transparent_square(screen, x_light, y_yellow)
         self._display_transparent_square(screen, x_light, y_green)
         # 2.3. Logic light description
-        red_msg = "This labyrinth is wrong!"
-        yellow_msg = "This labyrinth may be playable."
-        green_msg = "This labyrinth is playable!"
-        red_text = font_arial_10.render(red_msg, False, black)
-        yellow_text = font_arial_10.render(yellow_msg, False, black)
-        green_text = font_arial_10.render(green_msg, False, black)
+        red_msg = "=> This labyrinth is wrong!"
+        yellow_msg = "=> This labyrinth may be playable."
+        green_msg = "=> This labyrinth is playable!"
+        red_text = font_arial_14.render(red_msg, False, black)
+        yellow_text = font_arial_14.render(yellow_msg, False, black)
+        green_text = font_arial_14.render(green_msg, False, black)
         screen.blit(red_text, (x_light + side + 10, y_red + 10))
         screen.blit(yellow_text, (x_light + side + 10, y_yellow + 10))
         screen.blit(green_text, (x_light + side + 10, y_green + 10))
+        # 3. Third section
+        bottom_str = "Press 'Esc' if you want to quit"
+        bottom = font_arial_16_bold.render(bottom_str, False, black)
+        x_bottom = x0
+        y_bottom = y0 + 14 * side
+        screen.blit(bottom, (x_bottom, y_bottom))
         # screen refresh
         pygame.display.flip()
 

@@ -27,7 +27,7 @@ class LabyViewer:
         self.sprite_size = sprite_size # type is int
         self.origin = origin # type is tuple (int,int)
 
-    def display_labyrinth(self, screen, sprites):
+    def display_labyrinth(self, screen, sprites_dict):
         """This method displays the labyrinth.
         We assume that pygame has been initialized."""
         x0 = self.origin[0]
@@ -38,17 +38,17 @@ class LabyViewer:
                 y = y0 + (i * self.sprite_size)
                 item = self.labyrinth.grid.iloc[i,j]
                 if item == 0:
-                    sprite = sprites["sand_path"]
+                    sprite = sprites_dict["sand_path"]
                 elif item == 1:
-                    sprite = sprites["wall"]
+                    sprite = sprites_dict["wall"]
                 elif item == 2:
-                    sprite = sprites["sand_path"]
+                    sprite = sprites_dict["sand_path"]
                     screen.blit(sprite, (x,y))
-                    sprite = sprites["guard"]
+                    sprite = sprites_dict["guard"]
                 elif item == 3:
-                    sprite = sprites["sand_path"]
+                    sprite = sprites_dict["sand_path"]
                     screen.blit(sprite, (x,y))
-                    sprite = sprites["mac_gyver"]
+                    sprite = sprites_dict["mac_gyver"]
                 screen.blit(sprite, (x,y))
         pygame.display.flip()
 
