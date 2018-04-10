@@ -46,11 +46,11 @@ class Labyrinth:
         y = 0
         for row in self.grid.values:
             for val in row:
-                if val == value:
+                if val == 2:
                     break
                 else:
                     y += 1
-            if val == value:
+            if val == 2:
                 break
             else:
                 x += 1
@@ -63,11 +63,11 @@ class Labyrinth:
         y = 0
         for row in self.grid.values:
             for val in row:
-                if val == value:
+                if val == 2:
                     break
                 else:
                     y += 1
-            if val == value:
+            if val == 2:
                 break
             else:
                 x += 1
@@ -81,6 +81,7 @@ class Labyrinth:
         x3 = self.player.x_pos
         y3 = self.player.y_pos
         all_tools_found = True
+        # we check if all tools are found by the player
         for i in range(len(tools)):
             all_tools_found = all_tools_found and self.tools[i].found 
         # if player and guard are neighbours on the grid
@@ -91,35 +92,38 @@ class Labyrinth:
             else:
                 self.player_is_alive = False
 
-    def authorize_player_movements():
+    def authorize_player_movements(self):
         """This method updates the player authorized movements."""
         x = self.player.x_pos
         y = self.player.y_pos
-        up = (x,y-1)
-        down = (x,y+1)
-        left = (x-1,y)
-        right = (x+1,y)
+        # To use 'iloc' method with a DataFrame object (df),
+        # we write df.iloc[row, col] with row = y and col = x,
+        # i.e. this is equivalent to write df.iloc[y,x]
+        up_in_df = (y-1,x)
+        down_in_df = (y+1,x)
+        left_in_df = (y,x-1)
+        right_in_df = (y,x+1)
         # Since the labyrinth sides are composed with walls and the exit,
         # 'up', 'down', 'left' and 'right' are well inside the grid.
         # If the neighbour location is a wall ('1'), the movement is forbidden.
         # Otherwise, the neighbour location is necessarily a path ('0' or '3'),
         # thus the movement is authorized.
         # The neighbour location cannot be the exit ('2') during the game.
-        if self.grid.iloc[up] == 1:
+        if self.grid.iloc[up_in_df] == 1:
             self.player.authorized_movements["up"] = False
-        elif self.grid.iloc[up] in [0,3]:
+        elif self.grid.iloc[up_in_df] in [0,3]:
             self.player.authorized_movements["up"] = True
-        if self.grid.iloc[down] == 1:
+        if self.grid.iloc[down_in_df] == 1:
             self.player.authorized_movements["down"] = False
-        elif self.grid.iloc[down] in [0,3]:
+        elif self.grid.iloc[down_in_df] in [0,3]:
             self.player.authorized_movements["down"] = True
-        if self.grid.iloc[left] == 1:
+        if self.grid.iloc[left_in_df] == 1:
             self.player.authorized_movements["left"] = False
-        elif self.grid.iloc[left] in [0,3]:
+        elif self.grid.iloc[left_in_df] in [0,3]:
             self.player.authorized_movements["left"] = True
-        if self.grid.iloc[right] == 1:
+        if self.grid.iloc[right_in_df] == 1:
             self.player.authorized_movements["right"] = False
-        elif self.grid.iloc[right] in [0,3]:
+        elif self.grid.iloc[right_in_df] in [0,3]:
             self.player.authorized_movements["right"] = True
 
     def count_paths(self):
@@ -131,7 +135,7 @@ class Labyrinth:
                     counter += 1
         return counter
 
-    def find_tool():
+    def find_tool(self):
         """This method switches to 'True' the 'found' tool attribute,
         if the tool is found by the player."""
         for tool in self.tools:
@@ -148,11 +152,11 @@ class Labyrinth:
 
     def initialize_player_location(self):
         """This method assignes the real player location in the labyrinth."""
-        for row in self.grid.values: # iteration on rows
+        for j, row in enumerate(self.grid.values): # iteration on rows
             for i, val in enumerate(row): # iteration on items
                 if val == 3: # if we are on the player location
                     self.player.x_pos = i
-                    self.player.y_pos = row
+                    self.player.y_pos = j
 
     def position_tools_randomly(self):
         """This method randomly positions the tools in the labyrinth."""
@@ -165,17 +169,16 @@ class Labyrinth:
         for k, tool_name in enumerate(tools_names): # iteration on tools
             k_random_counter = 0
             k_random_rank = random_list[k]
-            for row in self.grid.values: # iteration on rows
+            for j, row in enumerate(self.grid.values): # iteration on rows
                 for i, val in enumerate(row): # iteration on items
                     if val == 0: # if we are on a path
                         # if we are on the randomly selected location
                         if k_random_counter == k_random_rank:
                             # we position the tool here
-                            tool = Tool(tools_names[k], i, row)
+                            tool = Tool(tools_names[k], i, j)
                             # we add the tool in the list
-                            tools.append(tool) 
-                        else:
-                            k_random_counter += 1
+                            tools.append(tool)
+                        k_random_counter += 1 
         return tools
 
     def save_grid_to_file(self, csv_file):
