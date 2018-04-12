@@ -16,21 +16,18 @@ from labyrinth import Labyrinth
 class Interface:
     """This class allows to create and modify an interface."""
 
-    # LABY_SIZE = 15 # this is the square labyrinth side size
-    #                # (number of sprites per side)
     SPRITE_SIZE = 30 # this is the square sprite width/height in pixels
     SCREEN_WIDTH = 800 # number of pixels
     SCREEN_HEIGHT = 550 # number of pixels
-    SCREEN_SIZE = (SCREEN_WIDTH, SCREEN_HEIGHT)
-    SCREEN_ORIGIN = (0,0)
-    LABY_ORIGIN = (50,50)
-    DASHBOARD_ORIGIN = (550,50)
+    SCREEN_ORIGIN = (0, 0)
+    LABY_ORIGIN = (50, 50)
+    DASHBOARD_ORIGIN = (550, 50)
 
 
     def __init__(self, back, laby_viewer, dashboard):
         """This special method is the class constructor."""
         self.back = back # type is pygame.Surface
-        self.screen = self.initialize_interface()
+        self.screen = self.initialize_interface() # type is pygame.Surface
         self.laby_viewer = laby_viewer # type is <class 'LabyViewer'>
         self.dashboard = dashboard # type is <class 'Dashboard'>
 
@@ -47,5 +44,5 @@ class Interface:
     @classmethod
     def initialize_interface(cls):
         """This method initialize the interface."""
-        screen = pygame.display.set_mode((cls.SCREEN_SIZE))
+        screen = pygame.display.set_mode((cls.SCREEN_WIDTH, cls.SCREEN_HEIGHT))
         return screen

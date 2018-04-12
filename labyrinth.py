@@ -32,7 +32,7 @@ class Labyrinth:
         """This special method is the class constructor."""
         self.height = height # type is int
         self.width = width # type is int
-        self.player = Player(-1,-1) # initialization out of the labyrinth
+        self.player = Player(-1, -1) # initialization out of the labyrinth
         # 'initialize_grid_from_file' method assignes the real player location
         # 'self.grid' type is pandas.Dataframe
         self.grid = self.initialize_grid_from_file(csv_file)
@@ -85,7 +85,8 @@ class Labyrinth:
         for i in range(len(self.tools)):
             all_tools_found = all_tools_found and self.tools[i].found 
         # if the player and the guard are neighbours on the grid
-        if ((x2 == x3) and (math.fabs(y2 - y3) == 1)) or ((math.fabs(x2 - x3) == 1) and (y2 == y3)):
+        if ((x2 == x3) and (math.fabs(y2 - y3) == 1))\
+        or ((math.fabs(x2 - x3) == 1) and (y2 == y3)):
             if all_tools_found:
                 self.player.wins = True
             else:
@@ -98,10 +99,10 @@ class Labyrinth:
         # To use 'iloc' method with a DataFrame object (df),
         # we write df.iloc[row, col] with row = y and col = x,
         # i.e. this is equivalent to write df.iloc[y,x]
-        up_in_df = (y-1,x)
-        down_in_df = (y+1,x)
-        left_in_df = (y,x-1)
-        right_in_df = (y,x+1)
+        up_in_df = (y-1, x)
+        down_in_df = (y+1, x)
+        left_in_df = (y, x-1)
+        right_in_df = (y, x+1)
         # Since the labyrinth sides are composed with walls and the exit,
         # 'up', 'down', 'left' and 'right' are well inside the grid.
         # If the neighbour location is a wall ('1'), the movement is forbidden.
@@ -110,19 +111,19 @@ class Labyrinth:
         # The neighbour location cannot be the exit ('2') during the game.
         if self.grid.iloc[up_in_df] == 1:
             self.player.authorized_movements["up"] = False
-        elif self.grid.iloc[up_in_df] in [0,3]:
+        elif self.grid.iloc[up_in_df] in [0, 3]:
             self.player.authorized_movements["up"] = True
         if self.grid.iloc[down_in_df] == 1:
             self.player.authorized_movements["down"] = False
-        elif self.grid.iloc[down_in_df] in [0,3]:
+        elif self.grid.iloc[down_in_df] in [0, 3]:
             self.player.authorized_movements["down"] = True
         if self.grid.iloc[left_in_df] == 1:
             self.player.authorized_movements["left"] = False
-        elif self.grid.iloc[left_in_df] in [0,3]:
+        elif self.grid.iloc[left_in_df] in [0, 3]:
             self.player.authorized_movements["left"] = True
         if self.grid.iloc[right_in_df] == 1:
             self.player.authorized_movements["right"] = False
-        elif self.grid.iloc[right_in_df] in [0,3]:
+        elif self.grid.iloc[right_in_df] in [0, 3]:
             self.player.authorized_movements["right"] = True
 
     def count_paths(self):

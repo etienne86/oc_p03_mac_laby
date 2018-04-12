@@ -12,15 +12,14 @@ import pygame
 from pygame.locals import *
 
 from labyrinth import Labyrinth
+from interface import Interface
 
 class Dashboard:
     """This class allows to create and modify a dashoard."""
 
-    def __init__(self, origin, mode, sprite_size):
+    def __init__(self, mode):
         """This special method is the class constructor."""
-        self.origin = origin # type is tuple (int,int)
         self.mode = mode # type is str
-        self.sprite_size = sprite_size # type is int
         self.logic_light = "yellow" # possible values: "red", "yellow", "green"
 
     def display(self, screen, tools=[]):
@@ -36,9 +35,9 @@ class Dashboard:
     def _game_display(self, screen, tools):
         """This method displays the dashboard in game mode.
         We assume that pygame has been initialized."""
-        x0 = self.origin[0]
-        y0 = self.origin[1]
-        side = self.sprite_size
+        x_0 = Interface.DASHBOARD_ORIGIN[0]
+        y_0 = Interface.DASHBOARD_ORIGIN[1]
+        side = Interface.SPRITE_SIZE
         # Our fonts
         black = (0, 0, 0)
         font_arial_16_bold = pygame.font.SysFont('Arial', 16, bold=True)
@@ -47,11 +46,11 @@ class Dashboard:
         # 1.1. Title
         title1_str = 'Tools found until now:'
         title1 = font_arial_16_bold.render(title1_str, False, black)
-        screen.blit(title1,(x0,y0))
+        screen.blit(title1,(x_0,y_0))
         # 1.2. Items
         for i, tool in enumerate(tools):
-            x_tool = x0
-            y_tool = y0 + ((2*i + (1 - 0.5*i)) * side)
+            x_tool = x_0
+            y_tool = y_0 + ((2*i + (1 - 0.5*i)) * side)
             # We draw an "empty" square
             self._display_transparent_square(screen, x_tool, y_tool)
             # We display the tool name
@@ -62,18 +61,18 @@ class Dashboard:
             # We fill the square with the sprite if the tool is found
             if tool.found:
                 sprite_png = tool.name + ".png"
-                sprite_path = os.path.join("sprites", sprite_png)
+                sprite_path = os.path.join("sprites", "tools", sprite_png)
                 sprite = pygame.image.load(sprite_path).convert()
                 screen.blit(sprite, (x_tool, y_tool))
         # 2. Second section
         # 2.1. Title
         title2 = font_arial_16_bold.render('Status:', False, black)
-        screen.blit(title2,(x0, y0 + 7 * side))
+        screen.blit(title2,(x_0, y_0 + 7 * side))
         # 2.2. Logic light (red/yellow/green)
-        x_light = x0
-        y_red = y0 + 8 * side
-        y_yellow = y0 + 9.5 * side
-        y_green = y0 + 11 * side
+        x_light = x_0
+        y_red = y_0 + 8 * side
+        y_yellow = y_0 + 9.5 * side
+        y_green = y_0 + 11 * side
         if self.logic_light == "red":
             y_light = y_red
             color = (255, 0, 0)
@@ -107,8 +106,8 @@ class Dashboard:
         # 3. Third section
         bottom_str = "Press 'Esc' if you want to quit"
         bottom = font_arial_16_bold.render(bottom_str, False, black)
-        x_bottom = x0
-        y_bottom = y0 + 14 * side
+        x_bottom = x_0
+        y_bottom = y_0 + 14 * side
         screen.blit(bottom, (x_bottom, y_bottom))
         # screen refresh
         pygame.display.flip()
@@ -116,9 +115,9 @@ class Dashboard:
     def _edit_display(self, screen):
         """This method displays the dashboard in edit mode.
         We assume that pygame has been initialized."""
-        x0 = self.origin[0]
-        y0 = self.origin[1]
-        side = self.sprite_size
+        x_0 = Interface.DASHBOARD_ORIGIN[0]
+        y_0 = Interface.DASHBOARD_ORIGIN[1]
+        side = Interface.SPRITE_SIZE
         # Our fonts
         black = (0, 0, 0)
         font_arial_16_bold = pygame.font.SysFont('Arial', 16, bold=True)
@@ -127,11 +126,11 @@ class Dashboard:
         # 1.1. Title
         title1_str = 'Left click to select, right click to release:'
         title1 = font_arial_16_bold.render(title1_str, False, black)
-        screen.blit(title1, (x0, y0))
+        screen.blit(title1, (x_0, y_0))
         # 1.2. Items
         for i in range(3):
-            x_sprite = x0
-            y_sprite = y0 + ((2*i + (1 - 0.5*i)) * side)
+            x_sprite = x_0
+            y_sprite = y_0 + ((2*i + (1 - 0.5*i)) * side)
             # We fill the square with the sprite if the tool is found
             if i == 0:
                 sprite = pygame.image.load("sprites\\wall.png").convert()
@@ -153,12 +152,12 @@ class Dashboard:
         # 2. Second section
         # 2.1. Title
         title2 = font_arial_16_bold.render('Status:', False, black)
-        screen.blit(title1,(x0, y0 + 7 * side))
+        screen.blit(title1,(x_0, y_0 + 7 * side))
         # 2.2. Logic light (red/yellow/green)
-        x_light = x0
-        y_red = y0 + 8 * side
-        y_yellow = y0 + 9.5 * side
-        y_green = y0 + 11 * side
+        x_light = x_0
+        y_red = y_0 + 8 * side
+        y_yellow = y_0 + 9.5 * side
+        y_green = y_0 + 11 * side
         if self.logic_light == "red":
             y_light = y_red
             color = (255, 0, 0)
@@ -192,8 +191,8 @@ class Dashboard:
         # 3. Third section
         bottom_str = "Press 'Esc' if you want to quit"
         bottom = font_arial_16_bold.render(bottom_str, False, black)
-        x_bottom = x0
-        y_bottom = y0 + 14 * side
+        x_bottom = x_0
+        y_bottom = y_0 + 14 * side
         screen.blit(bottom, (x_bottom, y_bottom))
         # screen refresh
         pygame.display.flip()
@@ -205,7 +204,7 @@ class Dashboard:
        We assume that pygame has been initialized."""
        # We draw an "empty" square by drawing only the sides
        black = (0,0,0)
-       side = self.sprite_size
+       side = Interface.SPRITE_SIZE
        pygame.draw.rect(screen, black, (x, y, side, 1)) # top side
        pygame.draw.rect(screen, black, (x, y + side, side, 1)) # bottom side
        pygame.draw.rect(screen, black, (x, y, 1, side)) # left side
