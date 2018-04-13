@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
-"""This file has to be executed with Python to launch a labyrinth game."""
+"""Please execute this file with Python to launch a labyrinth game."""
 
 import os
 
@@ -48,19 +48,22 @@ def game_loop(window, game_interface, game_laby, game_player, sprites_dict):
                 elif event.key == K_DOWN:
                     if game_player.authorized_movements["down"]:
                         # we erase the player sprite
-                        window.blit(sprites_dict["sand_path"], (x_player, y_player))
+                        window.blit(sprites_dict["sand_path"],
+                                    (x_player, y_player))
                         # we update the player location in the labyrinth
                         game_player.move("down")
                 elif event.key == K_LEFT:
                     if game_player.authorized_movements["left"]:
                         # we erase the player sprite
-                        window.blit(sprites_dict["sand_path"], (x_player, y_player))
+                        window.blit(sprites_dict["sand_path"],
+                                    (x_player, y_player))
                         # we update the player location in the labyrinth
                         game_player.move("left")
                 elif event.key == K_RIGHT:
                     if game_player.authorized_movements["right"]:
                         # we erase the player sprite
-                        window.blit(sprites_dict["sand_path"], (x_player, y_player))
+                        window.blit(sprites_dict["sand_path"],
+                                    (x_player, y_player))
                         # we update the player location in the labyrinth
                         game_player.move("right")
                 # we check if the player find a tool
@@ -116,15 +119,15 @@ def main():
 
     # we load our sprites
     mac_gyver = pygame.image.load("sprites\\laby\\mac_gyver.png").convert()
-    mac_gyver.set_colorkey((255, 255, 255)) # set white as transparent
+    mac_gyver.set_colorkey((255, 255, 255))  # set white as transparent
     sand_path = pygame.image.load("sprites\\laby\\path.png").convert()
     wall = pygame.image.load("sprites\\laby\\wall.png").convert()
     guard = pygame.image.load("sprites\\laby\\guard.png").convert()
-    guard.set_colorkey((255, 255, 255)) # set white as transparent
+    guard.set_colorkey((255, 255, 255))  # set white as transparent
 
     # we improve our window
     mac_g_a = pygame.image.load("sprites\\laby\\mac_gyver.png").convert_alpha()
-    mac_g_a.set_colorkey((255, 255, 255)) # set white as transparent
+    mac_g_a.set_colorkey((255, 255, 255))  # set white as transparent
     pygame.display.set_icon(mac_g_a)
     pygame.display.set_caption("Mac Gyverinth - game mode - by etienne86")
     pygame.display.flip()

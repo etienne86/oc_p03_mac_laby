@@ -11,16 +11,16 @@ import os
 import pygame
 from pygame.locals import *
 
-from labyrinth import Labyrinth
 from interface import Interface
+
 
 class Dashboard:
     """This class allows to create and modify a dashoard."""
 
     def __init__(self, mode):
         """This special method is the class constructor."""
-        self.mode = mode # type is str
-        self.logic_light = "yellow" # possible values: "red", "yellow", "green"
+        self.mode = mode  # type is str
+        self.logic_light = "yellow"  # possible values: "red"/"yellow"/"green"
 
     def display(self, screen, tools=[]):
         """This method displays the dashboard.
@@ -35,102 +35,110 @@ class Dashboard:
     def _game_display(self, screen, tools):
         """This method displays the dashboard in game mode.
         We assume that pygame has been initialized."""
-        x_0 = Interface.DASHBOARD_ORIGIN[0]
-        y_0 = Interface.DASHBOARD_ORIGIN[1]
         side = Interface.SPRITE_SIZE
         # Our fonts
-        black = (0, 0, 0)
         font_arial_16_bold = pygame.font.SysFont('Arial', 16, bold=True)
         font_arial_14 = pygame.font.SysFont('Arial', 14)
         # 1. First section
         # 1.1. Title
-        title1_str = 'Tools found until now:'
-        title1 = font_arial_16_bold.render(title1_str, False, black)
-        screen.blit(title1,(x_0,y_0))
+        screen.blit(font_arial_16_bold.render('Tools found until now:',
+                                              False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0],
+                     Interface.DASHBOARD_ORIGIN[1]))
         # 1.2. Items
         for i, tool in enumerate(tools):
-            x_tool = x_0
-            y_tool = y_0 + ((2*i + (1 - 0.5*i)) * side)
+            y_tool = Interface.DASHBOARD_ORIGIN[1]\
+                    + ((2*i + (1 - 0.5*i)) * side)
             # We draw an "empty" square
-            self._display_transparent_square(screen, x_tool, y_tool)
+            display_transparent_square(screen,
+                                       Interface.DASHBOARD_ORIGIN[0], y_tool)
             # We display the tool name
-            x_tool_name = x_tool + side + 10
-            y_tool_name = y_tool + 10
-            tool_text = font_arial_14.render(tool.name, False, black)
-            screen.blit(tool_text, (x_tool_name, y_tool_name))
+            screen.blit(font_arial_14.render(tool.name, False, (0, 0, 0)),
+                        (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                         y_tool + 10))
             # We fill the square with the sprite if the tool is found
             if tool.found:
-                sprite_png = tool.name + ".png"
-                sprite_path = os.path.join("sprites", "tools", sprite_png)
-                sprite = pygame.image.load(sprite_path).convert()
-                screen.blit(sprite, (x_tool, y_tool))
+                sprite_path = os.path.join("sprites", "tools",
+                                           tool.name + ".png")
+                screen.blit(pygame.image.load(sprite_path).convert(),
+                            (Interface.DASHBOARD_ORIGIN[0], y_tool))
         # 2. Second section
         # 2.1. Title
-        title2 = font_arial_16_bold.render('Status:', False, black)
-        screen.blit(title2,(x_0, y_0 + 7 * side))
+        screen.blit(font_arial_16_bold.render('Status:', False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0],
+                     Interface.DASHBOARD_ORIGIN[1] + 7 * side))
         # 2.2. Logic light (red/yellow/green)
-        x_light = x_0
-        y_red = y_0 + 8 * side
-        y_yellow = y_0 + 9.5 * side
-        y_green = y_0 + 11 * side
         if self.logic_light == "red":
-            y_light = y_red
-            color = (255, 0, 0)
+            y_light = Interface.DASHBOARD_ORIGIN[1] + 8 * side
+            colour = (255, 0, 0)
         elif self.logic_light == "yellow":
-            y_light = y_yellow
-            color = (255, 242, 0)
+            y_light = Interface.DASHBOARD_ORIGIN[1] + 9.5 * side
+            colour = (255, 242, 0)
         elif self.logic_light == "green":
-            y_light = y_green
-            color = (0, 255, 0)
+            y_light = Interface.DASHBOARD_ORIGIN[1] + 11 * side
+            colour = (0, 255, 0)
         else:
             raise ValueError(self.logic_light)
-        # Three lines to draw the black light
-        pygame.draw.rect(screen, black, (x_light, y_red, side, side))
-        pygame.draw.rect(screen, black, (x_light, y_yellow, side, side))
-        pygame.draw.rect(screen, black, (x_light, y_green, side, side))
+        # Draw the black squares
+        pygame.draw.rect(screen, (0, 0, 0),
+                         (Interface.DASHBOARD_ORIGIN[0],
+                          Interface.DASHBOARD_ORIGIN[1] + 8 * side,
+                          side, side))
+        pygame.draw.rect(screen, (0, 0, 0),
+                         (Interface.DASHBOARD_ORIGIN[0],
+                          Interface.DASHBOARD_ORIGIN[1] + 9.5 * side,
+                          side, side))
+        pygame.draw.rect(screen, (0, 0, 0),
+                         (Interface.DASHBOARD_ORIGIN[0],
+                          Interface.DASHBOARD_ORIGIN[1] + 11 * side,
+                          side, side))
         # Draw the logic light
-        pygame.draw.rect(screen, color, (x_light, y_light, side, side))
-        self._display_transparent_square(screen, x_light, y_red)
-        self._display_transparent_square(screen, x_light, y_yellow)
-        self._display_transparent_square(screen, x_light, y_green)
+        pygame.draw.rect(screen, colour, (Interface.DASHBOARD_ORIGIN[0],
+                                          y_light, side, side))
+        display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                   Interface.DASHBOARD_ORIGIN[1] + 8 * side)
+        display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                   Interface.DASHBOARD_ORIGIN[1] + 9.5 * side)
+        display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                   Interface.DASHBOARD_ORIGIN[1] + 11 * side)
         # 2.3. Logic light description
-        red_msg = "=> You lose... your life, sorry!"
-        yellow_msg = "=> You are still alive, good luck!"
-        green_msg = "=> You win, congratulations!"
-        red_text = font_arial_14.render(red_msg, False, black)
-        yellow_text = font_arial_14.render(yellow_msg, False, black)
-        green_text = font_arial_14.render(green_msg, False, black)
-        screen.blit(red_text, (x_light + side + 10, y_red + 10))
-        screen.blit(yellow_text, (x_light + side + 10, y_yellow + 10))
-        screen.blit(green_text, (x_light + side + 10, y_green + 10))
+        screen.blit(font_arial_14.render("=> You lose... The guard kills you!",
+                                         False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                     Interface.DASHBOARD_ORIGIN[1] + 8 * side + 10))
+        screen.blit(font_arial_14.render("=> You are alive, good luck!",
+                                         False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                     Interface.DASHBOARD_ORIGIN[1] + 9.5 * side + 10))
+        screen.blit(font_arial_14.render("=> You win! Congratulations!",
+                                         False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                     Interface.DASHBOARD_ORIGIN[1] + 11 * side + 10))
         # 3. Third section
-        bottom_str = "Press 'Esc' if you want to quit"
-        bottom = font_arial_16_bold.render(bottom_str, False, black)
-        x_bottom = x_0
-        y_bottom = y_0 + 14 * side
-        screen.blit(bottom, (x_bottom, y_bottom))
-        # screen refresh
+        screen.blit(font_arial_16_bold.render("Press 'Esc' to quit",
+                                              False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0],
+                     Interface.DASHBOARD_ORIGIN[1] + 14 * side))
+        # Screen refresh
         pygame.display.flip()
 
     def _edit_display(self, screen):
         """This method displays the dashboard in edit mode.
         We assume that pygame has been initialized."""
-        x_0 = Interface.DASHBOARD_ORIGIN[0]
-        y_0 = Interface.DASHBOARD_ORIGIN[1]
         side = Interface.SPRITE_SIZE
         # Our fonts
-        black = (0, 0, 0)
         font_arial_16_bold = pygame.font.SysFont('Arial', 16, bold=True)
         font_arial_14 = pygame.font.SysFont('Arial', 14)
         # 1. First section
         # 1.1. Title
-        title1_str = 'Left click to select, right click to release:'
-        title1 = font_arial_16_bold.render(title1_str, False, black)
-        screen.blit(title1, (x_0, y_0))
+        instruction = "Left click to select, right click to release:"
+        screen.blit(font_arial_16_bold.render(instruction, False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0],
+                     Interface.DASHBOARD_ORIGIN[1]))
         # 1.2. Items
         for i in range(3):
-            x_sprite = x_0
-            y_sprite = y_0 + ((2*i + (1 - 0.5*i)) * side)
+            y_sprite = Interface.DASHBOARD_ORIGIN[1]\
+                    + ((2*i + (1 - 0.5*i)) * side)
             # We fill the square with the sprite if the tool is found
             if i == 0:
                 sprite = pygame.image.load("sprites\\wall.png").convert()
@@ -141,73 +149,90 @@ class Dashboard:
             if i == 2:
                 sprite = pygame.image.load("sprites\\guard.png").convert()
                 sprite_name = "Exit"
-            screen.blit(sprite, (x_sprite, y_sprite))
+            screen.blit(sprite, (Interface.DASHBOARD_ORIGIN[0], y_sprite))
             # We draw a square
-            self._display_transparent_square(screen, x_sprite, y_sprite)
+            display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                       y_sprite)
             # We display the sprite name
-            x_sprite_name = x_sprite + side + 10
-            y_sprite_name = y_sprite + 10
-            sprite_text = font_arial_14.render(sprite_name, False, black)
-            screen.blit(sprite_text, (x_sprite_name, y_sprite_name))
+            screen.blit(font_arial_14.render(sprite_name, False, (0, 0, 0)),
+                        (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                         y_sprite + 10))
         # 2. Second section
         # 2.1. Title
-        title2 = font_arial_16_bold.render('Status:', False, black)
-        screen.blit(title1,(x_0, y_0 + 7 * side))
+        screen.blit(font_arial_16_bold.render('Status:', False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0],
+                     Interface.DASHBOARD_ORIGIN[1] + 7 * side))
         # 2.2. Logic light (red/yellow/green)
-        x_light = x_0
-        y_red = y_0 + 8 * side
-        y_yellow = y_0 + 9.5 * side
-        y_green = y_0 + 11 * side
         if self.logic_light == "red":
-            y_light = y_red
-            color = (255, 0, 0)
+            y_light = Interface.DASHBOARD_ORIGIN[1] + 8 * side
+            colour = (255, 0, 0)
         elif self.logic_light == "yellow":
-            y_light = y_yellow
-            color = (255, 242, 0)
+            y_light = Interface.DASHBOARD_ORIGIN[0] + 9.5 * side
+            colour = (255, 242, 0)
         elif self.logic_light == "green":
-            y_light = y_green
-            color = (0, 255, 0)
+            y_light = Interface.DASHBOARD_ORIGIN[1] + 11 * side
+            colour = (0, 255, 0)
         else:
             raise ValueError(self.logic_light)
-        # Three lines to draw the black light
-        pygame.draw.rect(screen, black, (x_light, y_red, side, side))
-        pygame.draw.rect(screen, black, (x_light, y_yellow, side, side))
-        pygame.draw.rect(screen, black, (x_light, y_green, side, side))
+        # Draw the black squares
+        pygame.draw.rect(screen, (0, 0, 0),
+                         (Interface.DASHBOARD_ORIGIN[0],
+                          Interface.DASHBOARD_ORIGIN[1] + 8 * side,
+                          side, side))
+        pygame.draw.rect(screen, (0, 0, 0),
+                         (Interface.DASHBOARD_ORIGIN[0],
+                          Interface.DASHBOARD_ORIGIN[1] + 9.5 * side,
+                          side, side))
+        pygame.draw.rect(screen, (0, 0, 0),
+                         (Interface.DASHBOARD_ORIGIN[0],
+                          Interface.DASHBOARD_ORIGIN[1] + 11 * side,
+                          side, side))
         # Draw the logic light
-        pygame.draw.rect(screen, color, (x_light, y_light, side, side))
-        self._display_transparent_square(screen, x_light, y_red)
-        self._display_transparent_square(screen, x_light, y_yellow)
-        self._display_transparent_square(screen, x_light, y_green)
+        pygame.draw.rect(screen, colour, (Interface.DASHBOARD_ORIGIN[0],
+                                          y_light, side, side))
+        display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                   Interface.DASHBOARD_ORIGIN[1] + 8 * side)
+        display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                   Interface.DASHBOARD_ORIGIN[0] + 9.5 * side)
+        display_transparent_square(screen, Interface.DASHBOARD_ORIGIN[0],
+                                   Interface.DASHBOARD_ORIGIN[1] + 11 * side)
         # 2.3. Logic light description
-        red_msg = "=> This labyrinth is wrong!"
-        yellow_msg = "=> This labyrinth may be playable."
-        green_msg = "=> This labyrinth is playable!"
-        red_text = font_arial_14.render(red_msg, False, black)
-        yellow_text = font_arial_14.render(yellow_msg, False, black)
-        green_text = font_arial_14.render(green_msg, False, black)
-        screen.blit(red_text, (x_light + side + 10, y_red + 10))
-        screen.blit(yellow_text, (x_light + side + 10, y_yellow + 10))
-        screen.blit(green_text, (x_light + side + 10, y_green + 10))
+        screen.blit(font_arial_14.render("=> This labyrinth is wrong!",
+                                         False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                     Interface.DASHBOARD_ORIGIN[1] + 8 * side + 10))
+        screen.blit(font_arial_14.render("=> This labyrinth may be playable.",
+                                         False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                     Interface.DASHBOARD_ORIGIN[0] + 9.5 * side + 10))
+        screen.blit(font_arial_14.render("=> This labyrinth is playable!",
+                                         False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0] + side + 10,
+                     Interface.DASHBOARD_ORIGIN[1] + 11 * side + 10))
         # 3. Third section
-        bottom_str = "Press 'Esc' if you want to quit"
-        bottom = font_arial_16_bold.render(bottom_str, False, black)
-        x_bottom = x_0
-        y_bottom = y_0 + 14 * side
-        screen.blit(bottom, (x_bottom, y_bottom))
-        # screen refresh
+        screen.blit(font_arial_16_bold.render("Press 'Esc' to quit",
+                                              False, (0, 0, 0)),
+                    (Interface.DASHBOARD_ORIGIN[0],
+                     Interface.DASHBOARD_ORIGIN[1] + 14 * side))
+        # Screen refresh
         pygame.display.flip()
 
-    def _display_transparent_square(self, screen, x, y):
-       """This method displays a transparent square,
-       with the same size as the sprites.
-       The top left angle is located at (x,y).
-       We assume that pygame has been initialized."""
-       # We draw an "empty" square by drawing only the sides
-       black = (0,0,0)
-       side = Interface.SPRITE_SIZE
-       pygame.draw.rect(screen, black, (x, y, side, 1)) # top side
-       pygame.draw.rect(screen, black, (x, y + side, side, 1)) # bottom side
-       pygame.draw.rect(screen, black, (x, y, 1, side)) # left side
-       pygame.draw.rect(screen, black, (x + side, y, 1, side)) # right side
-       # screen refresh
-       pygame.display.flip()
+
+def display_transparent_square(screen, x_pos, y_pos):
+    """This function displays a transparent square,
+    with the same size as the sprites.
+    The top left angle is located at (x_pos, y_pos).
+    We assume that pygame has been initialized."""
+    # We draw an "empty" square by drawing only the sides
+    black = (0, 0, 0)
+    side = Interface.SPRITE_SIZE
+    # top side
+    pygame.draw.rect(screen, black, (x_pos, y_pos, side, 1))
+    # bottom side
+    pygame.draw.rect(screen, black, (x_pos, y_pos + side, side, 1))
+    # left side
+    pygame.draw.rect(screen, black, (x_pos, y_pos, 1, side))
+    # right side
+    pygame.draw.rect(screen, black, (x_pos + side, y_pos, 1, side))
+    # Screen refresh
+    pygame.display.flip()

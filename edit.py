@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # coding: utf-8
 
-"""This file has to be executed with Python to edit the labyrinth map."""
+"""Please execute this file with Python to edit the labyrinth map."""
 
 
 def main():

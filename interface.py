@@ -6,30 +6,26 @@ This includes both edit mode interface and game mode interface possibilities.
 This module uses pygame as main support.
 """
 
-import os
-
 import pygame
 from pygame.locals import *
 
-from labyrinth import Labyrinth
 
 class Interface:
     """This class allows to create and modify an interface."""
 
-    SPRITE_SIZE = 30 # this is the square sprite width/height in pixels
-    SCREEN_WIDTH = 800 # number of pixels
-    SCREEN_HEIGHT = 550 # number of pixels
+    SPRITE_SIZE = 30  # this is the square sprite width/height in pixels
+    SCREEN_WIDTH = 800  # number of pixels
+    SCREEN_HEIGHT = 550  # number of pixels
     SCREEN_ORIGIN = (0, 0)
     LABY_ORIGIN = (50, 50)
     DASHBOARD_ORIGIN = (550, 50)
 
-
     def __init__(self, back, laby_viewer, dashboard):
         """This special method is the class constructor."""
-        self.back = back # type is pygame.Surface
-        self.screen = self.initialize_interface() # type is pygame.Surface
-        self.laby_viewer = laby_viewer # type is <class 'LabyViewer'>
-        self.dashboard = dashboard # type is <class 'Dashboard'>
+        self.back = back  # type is pygame.Surface
+        self.screen = self.initialize_interface()  # type is pygame.Surface
+        self.laby_viewer = laby_viewer  # type is <class 'LabyViewer'>
+        self.dashboard = dashboard  # type is <class 'Dashboard'>
 
     def display_dashboard(self, screen, tools=[]):
         """This method displays the dashboard."""

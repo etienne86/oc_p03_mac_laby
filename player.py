@@ -11,8 +11,8 @@ class Player:
         """This special method is the class constructor."""
         self.is_alive = True
         self.wins = False
-        self.x_pos = x_pos # type is int
-        self.y_pos = y_pos # type is int
+        self.x_pos = x_pos  # type is int
+        self.y_pos = y_pos  # type is int
         self.authorized_movements = {"up": False, "down": False,
                                      "left": False, "right": False}
 
