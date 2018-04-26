@@ -17,7 +17,9 @@ from interface import Interface
 class LabyViewer:
     """This class allows to create and modify an labyrinth viewer."""
 
-    LABY_SIZE = 15  # this is the square labyrinth side size
+    LABY_WIDTH = 15  # this is the labyrinth width in sprites
+    #                 (number of sprites per side)
+    LABY_HEIGHT = 15  # this is the labyrinth height in sprites
     #                 (number of sprites per side)
 
     def __init__(self, labyrinth):
@@ -29,8 +31,8 @@ class LabyViewer:
         We assume that pygame has been initialized."""
         x_0 = Interface.LABY_ORIGIN[0]
         y_0 = Interface.LABY_ORIGIN[1]
-        for j in range(self.LABY_SIZE):  # iteration over columns
-            for i in range(self.LABY_SIZE):  # iteration over rows
+        for j in range(self.LABY_WIDTH):  # iteration over columns
+            for i in range(self.LABY_HEIGHT):  # iteration over rows
                 x_pos = x_0 + (j * Interface.SPRITE_SIZE)
                 y_pos = y_0 + (i * Interface.SPRITE_SIZE)
                 item = self.labyrinth.grid.iloc[i, j]
@@ -45,8 +47,13 @@ class LabyViewer:
                 elif item == 3:
                     sprite = sprites_dict["sand_path"]
                     screen.blit(sprite, (x_pos, y_pos))
-                    sprite = sprites_dict["mac_gyver"]
-                screen.blit(sprite, (x_pos, y_pos))
+                    sprite = sprites_dict["m_gyver"]
+                elif str(item).isalpha():
+                    pass
+                else:
+                    raise ValueError(item)
+                if not str(item).isalpha():
+                    screen.blit(sprite, (x_pos, y_pos))
         pygame.display.flip()
 
     def display_tools_in_labyrinth(self, screen):
